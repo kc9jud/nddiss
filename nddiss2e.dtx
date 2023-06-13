@@ -13,7 +13,7 @@
 % \fi
 %
 %
-%  \CheckSum{1622}
+%  \CheckSum{1631}
 %  \CharacterTable
 %   {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
 %    Lower-case    \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u\v\w\x\y\z
@@ -277,6 +277,11 @@
 % when the |review| or |final| style options are used. It is
 % recommended that you only use this option when making the final
 % submission to the Graduate School.
+%
+% \DescribeMacro{noclassinfo}
+% The |noclassinfo| option disables the information box on the last page which
+% describes the typesetting program and \nddiss\space version used for preparing
+% the dissertation document.
 %
 % \DescribeMacro{nonatbib}
 % With this option, |nddiss2e| will not load the \textsf{natbib}
@@ -912,6 +917,7 @@
 \newif\ifdiss@review            \diss@reviewfalse
 \newif\ifdiss@final             \diss@finalfalse
 \newif\ifinfo@page              \info@pagetrue
+\newif\ifclass@info             \class@infotrue
 \newif\ifadvisors@two           \advisors@twofalse
 \newif\ifdiss@dedication        \diss@dedicationfalse
 \newif\ifnum@refs               \num@refstrue
@@ -1048,6 +1054,10 @@
 % \end{macro}
 %    \begin{macrocode}
 \DeclareOption{noinfo}{\info@pagefalse}
+%
+%    \end{macrocode}
+%    \begin{macrocode}
+\DeclareOption{noclassinfo}{\class@infofalse}
 %
 %    \end{macrocode}
 % The |twoside| option is for when you want to prepare a two-sided
@@ -2383,6 +2393,7 @@
 % the typesetting program and \nddiss\space version used for preparing the
 % dissertation document.
 %    \begin{macrocode}
+\ifclass@info
 \ifdiss@final
 \AtEndDocument{
     \vfill
@@ -2405,6 +2416,7 @@
     (v\dissfileversion [\dissfiledate])
     \end{minipage} }
     \clearpage}
+\else\relax\fi
 \else\relax\fi
 %
 % \endinput

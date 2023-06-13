@@ -42,6 +42,7 @@
 \newif\ifdiss@review            \diss@reviewfalse
 \newif\ifdiss@final             \diss@finalfalse
 \newif\ifinfo@page              \info@pagetrue
+\newif\ifclass@info             \class@infotrue
 \newif\ifadvisors@two           \advisors@twofalse
 \newif\ifdiss@dedication        \diss@dedicationfalse
 \newif\ifnum@refs               \num@refstrue
@@ -107,6 +108,7 @@
    \PassOptionsToClass{12pt}{book}%
 }
 \DeclareOption{noinfo}{\info@pagefalse}
+\DeclareOption{noclassinfo}{\class@infofalse}
 \DeclareOption{twoside}{\typeout{TWO SIDED DOCUMENT}\two@sidetrue%
   \PassOptionsToClass{twoside}{book} }%
 \DeclareOption{showframe}{%
@@ -897,6 +899,7 @@
     \renewcommand{\@biblabel}[1]{\hfill#1.\hfill}
   \fi
 \fi
+\ifclass@info
 \ifdiss@final
 \AtEndDocument{
     \vfill
@@ -919,6 +922,7 @@
     (v\dissfileversion [\dissfiledate])
     \end{minipage} }
     \clearpage}
+\else\relax\fi
 \else\relax\fi
 %%
 %%
