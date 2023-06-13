@@ -13,7 +13,7 @@
 % \fi
 %
 %
-%  \CheckSum{1589}
+%  \CheckSum{1622}
 %  \CharacterTable
 %   {Upper-case    \A\B\C\D\E\F\G\H\I\J\K\L\M\N\O\P\Q\R\S\T\U\V\W\X\Y\Z
 %    Lower-case    \a\b\c\d\e\f\g\h\i\j\k\l\m\n\o\p\q\r\s\t\u\v\w\x\y\z
@@ -62,8 +62,8 @@
 \DeclareRobustCommand{\nddiss}{%
          \textsf{{\scshape nd}diss}\kern-0.03em%
          2$_\mathsf{\textstyle\varepsilon}$}
-\providecommand{\dissfileversion}{3.2017.2}
-\providecommand{\dissfiledate}{2017-05-09}
+\providecommand{\dissfileversion}{3.2023.1}
+\providecommand{\dissfiledate}{2023-02-28}
 \DisableCrossrefs
 \CodelineNumbered
 \RecordChanges
@@ -918,6 +918,7 @@
 \newif\ifnatbib@refs            \natbib@refstrue
 \newif\ifcentered@chaptitle     \centered@chaptitletrue
 \newif\ifline@numbers           \line@numbersfalse
+\newif\iftwo@side               \two@sidefalse
 \newif\if@ltfirstcaption
 %
 %    \end{macrocode}
@@ -1054,7 +1055,7 @@
 % is in the page layout. This option is passed on to the parent {\sffamily
 % book} class.
 %    \begin{macrocode}
-\DeclareOption{twoside}{\typeout{TWO SIDED DOCUMENT}%
+\DeclareOption{twoside}{\typeout{TWO SIDED DOCUMENT}\two@sidetrue%
   \PassOptionsToClass{twoside}{book} }%
 %
 %    \end{macrocode}
@@ -1327,8 +1328,10 @@
 %
 %    \end{macrocode}
 %    \begin{macrocode}
+\let\@origdoublepage\cleardoublepage
 \newcommand{\clearemptydoublepage}{\newpage{\pagestyle{empty}%
-    \cleardoublepage}}
+    \@origdoublepage}}
+\iftwo@side\let\cleardoublepage\clearemptydoublepage\else\relax\fi
 %
 %    \end{macrocode}
 % \begin{macro}{\nddiss} Define the macro |\nddiss| that is the logo
@@ -1657,7 +1660,7 @@
 % the defaults for proper formatting the copyright page (if opted).
 %    \begin{macrocode}
 \newenvironment{copyrightpage}{%
-  \clearemptydoublepage
+  \clearpage
   \typeout{Copyright page}
   \pagestyle{empty}
   \null\vfil
@@ -1756,8 +1759,13 @@
 % sure it's upright, as required by the University and that this appears
 % at $0.75''$ from the top.
 %    \begin{macrocode}
-  \let\@evenhead\@oddhead
-  \renewcommand{\@oddhead}{\hfil{\upshape\@author}}
+  \iftwo@side
+    \let\@oddhead\@evenhead
+    \renewcommand{\@evenhead}{\hfil{\upshape\@author}}
+  \else
+    \let\@evenhead\@oddhead
+    \renewcommand{\@oddhead}{\hfil{\upshape\@author}}
+  \fi
   \titlepage
   \null
   \begin{center}
@@ -1773,7 +1781,8 @@
 % \end{environment}
 % \begin{environment}{dedication}
 % The \textsf{dedication} environment is similar to
-% the \textsf{abstract} environment. This page is numbered 2 and the
+% the \textsf{abstract} environment. This page is numbered 2 (numbered 3 if
+% \texttt{twoside} is in use) and the
 % subsequent pages are numbered accordingly. A pdfbookmark is
 % not created because of a reported issue that Adobe products have with
 % pdfbookmarks containing an |\mbox|.
@@ -1783,18 +1792,30 @@
   \typeout{Dedication page}
   \chapter*{\dedicationname}%
   \thispagestyle{plain}
-  \setcounter{page}{2}
+  \iftwo@side%
+    \setcounter{page}{3}%
+  \else%
+    \setcounter{page}{2}%
+  \fi
   \null\centering}
 {\par\null\clearpage}%
 %
 %    \end{macrocode}
 % \end{environment}
 % \begin{macro}{\tableofcontents} The |\tableofcontents| macro is redefined to
-% begin at page 2 if the dedication environment does not exist. It is
-% single-spaced.
+% begin at page 2 (page 3 if \texttt{twoside} is in use) if the dedication
+% environment does not exist. It is single-spaced.
 %    \begin{macrocode}
 \renewcommand\tableofcontents{%
-  \ifdiss@dedication\relax\else\setcounter{page}{2}\fi
+  \ifdiss@dedication%
+    \relax%
+  \else%
+    \iftwo@side%
+      \setcounter{page}{3}%
+    \else%
+      \setcounter{page}{2}%
+    \fi
+  \fi
   \chapter*{\contentsname}%
   \ifboolexpr{bool{pdf} or bool{xetex} or bool{luatex}}{%
       \pdfbookmark[0]{\contentsname}{contents}%contents.0

@@ -48,6 +48,7 @@
 \newif\ifnatbib@refs            \natbib@refstrue
 \newif\ifcentered@chaptitle     \centered@chaptitletrue
 \newif\ifline@numbers           \line@numbersfalse
+\newif\iftwo@side               \two@sidefalse
 \newif\if@ltfirstcaption
 \DeclareOption{draft}{
     \setlength\overfullrule{5pt}
@@ -106,7 +107,7 @@
    \PassOptionsToClass{12pt}{book}%
 }
 \DeclareOption{noinfo}{\info@pagefalse}
-\DeclareOption{twoside}{\typeout{TWO SIDED DOCUMENT}%
+\DeclareOption{twoside}{\typeout{TWO SIDED DOCUMENT}\two@sidetrue%
   \PassOptionsToClass{twoside}{book} }%
 \DeclareOption{showframe}{%
   \ifdiss@review%
@@ -279,8 +280,10 @@
 \setlength{\footskip}{30pt}
 \setlength{\floatsep}{30pt}
 \setlength{\intextsep}{50pt}
+\let\@origdoublepage\cleardoublepage
 \newcommand{\clearemptydoublepage}{\newpage{\pagestyle{empty}%
-    \cleardoublepage}}
+    \@origdoublepage}}
+\iftwo@side\let\cleardoublepage\clearemptydoublepage\else\relax\fi
 \DeclareRobustCommand{\nddiss}{%
         \textsf{{\scshape nd}diss}\kern-0.03em%
         2$_\mathsf{\textstyle\varepsilon}$}
@@ -476,7 +479,7 @@
   \end{titlepage}%
 }
 \newenvironment{copyrightpage}{%
-  \clearemptydoublepage
+  \clearpage
   \typeout{Copyright page}
   \pagestyle{empty}
   \null\vfil
@@ -528,8 +531,13 @@
   \typeout{Abstract page(s)}
   \renewcommand{\@oddfoot}{\@empty}
   \renewcommand{\@evenfoot}{\@empty}
-  \let\@evenhead\@oddhead
-  \renewcommand{\@oddhead}{\hfil{\upshape\@author}}
+  \iftwo@side
+    \let\@oddhead\@evenhead
+    \renewcommand{\@evenhead}{\hfil{\upshape\@author}}
+  \else
+    \let\@evenhead\@oddhead
+    \renewcommand{\@oddhead}{\hfil{\upshape\@author}}
+  \fi
   \titlepage
   \null
   \begin{center}
@@ -545,11 +553,23 @@
   \typeout{Dedication page}
   \chapter*{\dedicationname}%
   \thispagestyle{plain}
-  \setcounter{page}{2}
+  \iftwo@side%
+    \setcounter{page}{3}%
+  \else%
+    \setcounter{page}{2}%
+  \fi
   \null\centering}
 {\par\null\clearpage}%
 \renewcommand\tableofcontents{%
-  \ifdiss@dedication\relax\else\setcounter{page}{2}\fi
+  \ifdiss@dedication%
+    \relax%
+  \else%
+    \iftwo@side%
+      \setcounter{page}{3}%
+    \else%
+      \setcounter{page}{2}%
+    \fi
+  \fi
   \chapter*{\contentsname}%
   \ifboolexpr{bool{pdf} or bool{xetex} or bool{luatex}}{%
       \pdfbookmark[0]{\contentsname}{contents}%contents.0
